@@ -1,4 +1,5 @@
 mod addext;
+mod crawler;
 mod error;
 mod fileinfo;
 mod finddups;
