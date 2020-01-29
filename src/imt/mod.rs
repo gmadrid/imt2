@@ -1,7 +1,7 @@
 mod addext;
 mod crawler;
 mod error;
-mod fileinfo;
+//mod fileinfo;
 mod finddups;
 mod findneardups;
 mod opts;
