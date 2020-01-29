@@ -8,7 +8,7 @@ use walkdir::DirEntry;
 use crate::imt::crawler::{CrawlHelper, Crawler};
 use crate::imt::Result;
 
-//TODO: figure out why it's seeing a file in the .hidden directory.
+// TODO: figure out why it's seeing a file in the .hidden directory.
 
 #[derive(Copy, Clone)]
 enum ImageType {
