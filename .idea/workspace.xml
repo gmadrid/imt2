@@ -5,14 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c57ceb44-f550-452e-a0e1-623acac34b73" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/imt/addext/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/imt/addext/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/imt/crawler.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/imt/crawler.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/imt/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/imt/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/imt/opts.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/imt/opts.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test_images/test" beforeDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/target/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -70,8 +63,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/imt/addext/mod.rs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="331">
-              <caret line="70" selection-start-line="70" selection-end-line="70" />
+            <state relative-caret-position="-489">
+              <caret line="30" column="19" lean-forward="true" selection-start-line="30" selection-start-column="19" selection-end-line="30" selection-end-column="19" />
               <folding>
                 <element signature="e#1535#1536#0" expanded="true" />
                 <element signature="e#1596#1597#0" expanded="true" />
@@ -111,7 +104,7 @@
     <option name="x" value="1280" />
     <option name="y" value="23" />
     <option name="width" value="1280" />
-    <option name="height" value="789" />
+    <option name="height" value="1577" />
   </component>
   <component name="ProjectId" id="1X3LozWHxLld6Jn51lKUyDrzEfo" />
   <component name="ProjectView">
@@ -241,7 +234,7 @@
       <window_info anchor="bottom" id="Flutter Performance" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.2872777" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.28635016" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -334,8 +327,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/imt/addext/mod.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="331">
-          <caret line="70" selection-start-line="70" selection-end-line="70" />
+        <state relative-caret-position="-489">
+          <caret line="30" column="19" lean-forward="true" selection-start-line="30" selection-start-column="19" selection-end-line="30" selection-end-column="19" />
           <folding>
             <element signature="e#1535#1536#0" expanded="true" />
             <element signature="e#1596#1597#0" expanded="true" />

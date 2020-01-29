@@ -8,10 +8,23 @@ use walkdir::DirEntry;
 use crate::imt::crawler::{CrawlHelper, Crawler};
 use crate::imt::Result;
 
+// TODO: image_type is an expensive operation, so we should only call it once.
+// TODO: similarly, the first N bytes can be read and cached to avoid multiple file reads.
+
 enum ImageType {
     JPEG,
     GIF,
     PNG,
+}
+
+impl ImageType {
+    fn preferred_extension(&self) -> &'static str {
+        match self {
+            ImageType::JPEG => "jpg",
+            ImageType::GIF => "gif",
+            ImageType::PNG => "png",
+        }
+    }
 }
 
 #[derive(StructOpt, Debug)]
@@ -114,7 +127,6 @@ impl CrawlHelper for Helper {
         //   2) that have no file extension.
         let path = e.path();
 
-        // So, if there is an extension, don't process it.
         if has_extension(path) {
             Ok(false)
         } else {
@@ -123,7 +135,8 @@ impl CrawlHelper for Helper {
     }
 
     fn process_file(&self, e: &DirEntry) -> Result<()> {
-        eprintln!("PROCESS: {}", e.path().display());
+        let image_type = image_type(e.path())?;
+        eprintln!("PROCESS: {}: {}", image_type.map_or("???", |it| it.preferred_extension()),  e.path().display());
         Ok(())
     }
 }
