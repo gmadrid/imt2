@@ -70,10 +70,9 @@ where
                     }
                 })
         }) {
-            match self.process_entry(&mut ei) {
-                Err(err) => self.helper.handle_error(err),
-                Ok(_) => {}
-            }
+	    if let Err(err) = self.process_entry(&mut ei) {
+		self.helper.handle_error(err);
+	    }
         }
 
         Ok(())

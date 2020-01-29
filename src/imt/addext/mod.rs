@@ -18,7 +18,7 @@ enum ImageType {
 }
 
 impl ImageType {
-    fn preferred_extension(&self) -> &'static str {
+    fn preferred_extension(self) -> &'static str {
         match self {
             ImageType::JPEG => "jpg",
             ImageType::GIF => "gif",
@@ -57,7 +57,7 @@ fn read_first_bytes(file: &mut File, buf: &mut [u8]) -> Result<()> {
 }
 
 fn is_jpeg(file: &mut File, buf: &InfoBufType) -> Result<bool> {
-    if &buf[0..2] != [0xff, 0xd8] {
+    if buf[0..2] != [0xff, 0xd8] {
         return Ok(false);
     }
     let tail = read_last_two_bytes(file)?;
@@ -68,24 +68,24 @@ fn is_jpeg(file: &mut File, buf: &InfoBufType) -> Result<bool> {
 }
 
 fn is_png(buf: &InfoBufType) -> Result<bool> {
-    Ok(&buf[0..8] == [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
+    Ok(buf[0..8] == [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
 }
 
 fn is_gif(buf: &InfoBufType) -> Result<bool> {
-    Ok(&buf[0..4] == [0x47, 0x49, 0x46, 0x38] && // 'GIF8'
-        (&buf[4..6] == [0x37, 0x61] || // '7a'
-            &buf[4..6] == [0x39, 0x6a])) // '9a'
+    Ok(buf[0..4] == [0x47, 0x49, 0x46, 0x38] && // 'GIF8'
+        (buf[4..6] == [0x37, 0x61] || // '7a'
+            buf[4..6] == [0x39, 0x6a])) // '9a'
 }
 
 fn has_extension(path: &Path) -> bool {
-    path.extension().map(|e| e.len() > 0).unwrap_or(false)
+    path.extension().map(|e| !e.is_empty()).unwrap_or(false)
 }
 
 struct Helper {}
 
 fn is_hidden(e: &DirEntry) -> bool {
     let name = e.path().file_name();
-    name.map_or(false, |n| n.to_string_lossy().starts_with("."))
+    name.map_or(false, |n| n.to_string_lossy().starts_with('.'))
 }
 
 fn image_type(file: &mut File, bytes: &InfoBufType) -> Result<Option<ImageType>> {
@@ -123,7 +123,7 @@ impl Info {
         }
     }
 
-    fn first_ten_bytes<'a, 'b>(&'a mut self, file: &mut File) -> Result<&'a InfoBufType> {
+    fn first_ten_bytes(&mut self, file: &mut File) -> Result<&InfoBufType> {
         if self.buffer.is_none() {
             let mut buf = [0; 10];
             read_first_bytes(file, &mut buf)?;
