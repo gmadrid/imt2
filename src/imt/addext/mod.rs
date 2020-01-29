@@ -8,8 +8,6 @@ use walkdir::DirEntry;
 use crate::imt::crawler::{CrawlHelper, Crawler};
 use crate::imt::Result;
 
-// TODO: similarly, the first N bytes can be read and cached to avoid multiple file reads.
-
 #[derive(Copy, Clone)]
 enum ImageType {
     JPEG,
@@ -52,6 +50,7 @@ fn read_last_two_bytes(file: &mut File) -> Result<[u8; 2]> {
 }
 
 fn read_bytes(file: &mut File, buf: &mut [u8], location: SeekFrom) -> Result<()> {
+    eprintln!("Reading bytes: {:?}", file);
     file.seek(location)?;
     file.read_exact(buf)?;
 
@@ -62,9 +61,8 @@ fn read_first_bytes(file: &mut File, buf: &mut [u8]) -> Result<()> {
     read_bytes(file, buf, SeekFrom::Start(0))
 }
 
-fn is_jpeg(file: &mut File) -> Result<bool> {
-    let head = read_first_two_bytes(file)?;
-    if head != [0xff, 0xd8] {
+fn is_jpeg(file: &mut File, buf: &InfoBufType) -> Result<bool> {
+    if &buf[0..2] != [0xff, 0xd8] {
         return Ok(false);
     }
     let tail = read_last_two_bytes(file)?;
@@ -74,20 +72,14 @@ fn is_jpeg(file: &mut File) -> Result<bool> {
     Ok(true)
 }
 
-fn is_png(file: &mut File) -> Result<bool> {
-    let mut bytes = [0u8; 8];
-    read_first_bytes(file, &mut bytes)?;
-
-    Ok(bytes == [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
+fn is_png(buf: &InfoBufType) -> Result<bool> {
+    Ok(&buf[0..8] == [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
 }
 
-fn is_gif(file: &mut File) -> Result<bool> {
-    let mut bytes = [0u8; 6];
-    read_first_bytes(file, &mut bytes)?;
-
-    Ok(&bytes[0..4] == [0x47, 0x49, 0x46, 0x38] && // 'GIF8'
-        (&bytes[4..6] == [0x37, 0x61] || // '7a'
-            &bytes[4..6] == [0x39, 0x6a])) // '9a'
+fn is_gif(buf: &InfoBufType) -> Result<bool> {
+    Ok(&buf[0..4] == [0x47, 0x49, 0x46, 0x38] && // 'GIF8'
+        (&buf[4..6] == [0x37, 0x61] || // '7a'
+            &buf[4..6] == [0x39, 0x6a])) // '9a'
 }
 
 fn has_extension(path: &Path) -> bool {
@@ -101,13 +93,13 @@ fn is_hidden(e: &DirEntry) -> bool {
     name.map_or(false, |n| n.to_string_lossy().starts_with("."))
 }
 
-fn image_type(path: &Path) -> Result<Option<ImageType>> {
+fn image_type(path: &Path, bytes: &InfoBufType) -> Result<Option<ImageType>> {
     let mut file = File::open(path)?;
-    let image_type = if is_jpeg(&mut file)? {
+    let image_type = if is_jpeg(&mut file, bytes)? {
         Some(ImageType::JPEG)
-    } else if is_png(&mut file)? {
+    } else if is_png(bytes)? {
         Some(ImageType::PNG)
-    } else if is_gif(&mut file)? {
+    } else if is_gif(bytes)? {
         Some(ImageType::GIF)
     } else {
         None
@@ -117,19 +109,35 @@ fn image_type(path: &Path) -> Result<Option<ImageType>> {
 
 #[derive(Default)]
 struct Info {
-    image_type: Option<Option<ImageType>>
+    image_type: Option<Option<ImageType>>,
+    buffer: Option<InfoBufType>,
 }
+
+type InfoBufType = [u8; 10];
 
 impl Info {
     fn image_type(&mut self, e: &DirEntry) -> Result<Option<ImageType>> {
         match self.image_type {
             Some(it) => Ok(it),
             None => {
-                let it = image_type(e.path())?;
+                let it = image_type(e.path(), self.first_ten_bytes(e)?)?;
                 self.image_type = Some(it);
                 Ok(it)
             }
         }
+    }
+
+    fn first_ten_bytes<'a, 'b>(&'a mut self, e: &'b DirEntry) -> Result<&'a InfoBufType> {
+        if self.buffer.is_none() {
+            let mut file = File::open(e.path())?;
+            eprintln!("first_ten_bytes: {}", e.path().display());
+            let mut buf = [0; 10];
+            read_first_bytes(&mut file, &mut buf)?;
+            self.buffer = Some(buf);
+        }
+
+        // unwrap: either !is_none, or we have just filled in a value.
+        Ok(&self.buffer.as_ref().unwrap())
     }
 }
 
@@ -155,7 +163,6 @@ impl CrawlHelper for Helper {
     }
 
     fn process_file(&self, e: &DirEntry, it: &mut Self::InfoType) -> Result<()> {
-        //let image_type = image_type(e.path())?;
         let image_type = it.image_type(e)?;
         eprintln!(
             "PROCESS: {}: {}",

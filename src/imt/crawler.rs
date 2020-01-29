@@ -32,7 +32,10 @@ pub trait CrawlHelper {
     fn process_file(&self, e: &DirEntry, it: &mut Self::InfoType) -> Result<()>;
 }
 
-struct EntryInfo<T> where T: Default {
+struct EntryInfo<T>
+where
+    T: Default,
+{
     entry: DirEntry,
     info: T,
 }
@@ -56,7 +59,10 @@ where
             re.map_err(|err| self.helper.handle_error(err))
                 .ok()
                 .and_then(|e| {
-                    let mut ei = EntryInfo { entry: e, info: H::InfoType::default() };
+                    let mut ei = EntryInfo {
+                        entry: e,
+                        info: H::InfoType::default(),
+                    };
                     if self.filter(&mut ei) {
                         Some(ei)
                     } else {
