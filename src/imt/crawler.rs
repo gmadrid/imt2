@@ -14,12 +14,11 @@ where
 pub trait CrawlHelper {
     type InfoType: Default;
 
-    fn handle_error<E>(&self, err: E) -> E
+    fn handle_error<E>(&self, err: E)
     where
         E: std::error::Error,
     {
         eprintln!("Error: {}", err.description());
-        err
     }
     fn should_descend(&self, _e: &DirEntry) -> Result<bool> {
         Ok(true)
@@ -65,13 +64,9 @@ where
                     }
                 })
         }) {
-            let result = self.process_entry(&mut ei);
-            //let result = self.
-            //    .map_err(|err| ImtError::from(err))
-            //    .and_then(|e| self.process_entry(&e));
-            if result.is_err() {
-                // unwrap: safe because we are inside is_err() case.
-                self.helper.handle_error(result.unwrap_err());
+            match self.process_entry(&mut ei) {
+                Err(err) => self.helper.handle_error(err),
+                Ok(_) => {}
             }
         }
 
@@ -112,14 +107,10 @@ where
     }
 
     fn process_dir(&self, e: &DirEntry) -> Result<()> {
-        self.helper
-            .process_directory(e)
-            .map_err(|e| self.helper.handle_error(e))
+        self.helper.process_directory(e)
     }
 
     fn process_file(&self, ei: &mut EntryInfo<H::InfoType>) -> Result<()> {
-        self.helper
-            .process_file(&ei.entry, &mut ei.info)
-            .map_err(|e| self.helper.handle_error(e))
+        self.helper.process_file(&ei.entry, &mut ei.info)
     }
 }

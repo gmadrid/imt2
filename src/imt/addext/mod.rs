@@ -102,7 +102,6 @@ fn is_hidden(e: &DirEntry) -> bool {
 }
 
 fn image_type(path: &Path) -> Result<Option<ImageType>> {
-    eprintln!("IMAGE TYPE FOR: {:?}", path);
     let mut file = File::open(path)?;
     let image_type = if is_jpeg(&mut file)? {
         Some(ImageType::JPEG)
