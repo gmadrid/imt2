@@ -12,6 +12,8 @@ where
 }
 
 pub trait CrawlHelper {
+    type InfoType: Default;
+
     fn handle_error<E>(&self, err: E) -> E
     where
         E: std::error::Error,
@@ -25,14 +27,15 @@ pub trait CrawlHelper {
     fn process_directory(&self, _e: &DirEntry) -> Result<()> {
         Ok(())
     }
-    fn should_process_file(&self, _e: &DirEntry) -> Result<bool> {
+    fn should_process_file(&self, _e: &DirEntry, _it: &mut Self::InfoType) -> Result<bool> {
         Ok(true)
     }
-    fn process_file(&self, e: &DirEntry) -> Result<()>;
+    fn process_file(&self, e: &DirEntry, it: &mut Self::InfoType) -> Result<()>;
 }
 
-struct EntryInfo {
+struct EntryInfo<T> where T: Default {
     entry: DirEntry,
+    info: T,
 }
 
 impl<H> Crawler<H>
@@ -50,19 +53,19 @@ where
     }
 
     pub fn crawl(&self) -> Result<()> {
-        for ei in WalkDir::new(&self.path).into_iter().filter_map(|re| {
+        for mut ei in WalkDir::new(&self.path).into_iter().filter_map(|re| {
             re.map_err(|err| self.helper.handle_error(err))
                 .ok()
                 .and_then(|e| {
-                    let ei = EntryInfo { entry: e };
-                    if self.filter(&ei) {
+                    let mut ei = EntryInfo { entry: e, info: H::InfoType::default() };
+                    if self.filter(&mut ei) {
                         Some(ei)
                     } else {
                         None
                     }
                 })
         }) {
-            let result = self.process_entry(&ei.entry);
+            let result = self.process_entry(&mut ei);
             //let result = self.
             //    .map_err(|err| ImtError::from(err))
             //    .and_then(|e| self.process_entry(&e));
@@ -75,7 +78,7 @@ where
         Ok(())
     }
 
-    fn filter(&self, ei: &EntryInfo) -> bool {
+    fn filter(&self, ei: &mut EntryInfo<H::InfoType>) -> bool {
         let path = ei.entry.path();
         if path.is_dir() {
             self.filter_dir(ei)
@@ -86,25 +89,25 @@ where
         }
     }
 
-    fn filter_dir(&self, e: &EntryInfo) -> bool {
+    fn filter_dir(&self, ei: &EntryInfo<H::InfoType>) -> bool {
         self.helper
-            .should_descend(&e.entry)
+            .should_descend(&ei.entry)
             .map_err(|e| self.helper.handle_error(e))
             .unwrap_or(false)
     }
 
-    fn filter_file(&self, e: &EntryInfo) -> bool {
+    fn filter_file(&self, ei: &mut EntryInfo<H::InfoType>) -> bool {
         self.helper
-            .should_process_file(&e.entry)
+            .should_process_file(&ei.entry, &mut ei.info)
             .map_err(|e| self.helper.handle_error(e))
             .unwrap_or(false)
     }
 
-    fn process_entry(&self, e: &DirEntry) -> Result<()> {
-        if e.path().is_dir() {
-            self.process_dir(e)
+    fn process_entry(&self, ei: &mut EntryInfo<H::InfoType>) -> Result<()> {
+        if ei.entry.path().is_dir() {
+            self.process_dir(&ei.entry)
         } else {
-            self.process_file(e)
+            self.process_file(ei)
         }
     }
 
@@ -114,9 +117,9 @@ where
             .map_err(|e| self.helper.handle_error(e))
     }
 
-    fn process_file(&self, e: &DirEntry) -> Result<()> {
+    fn process_file(&self, ei: &mut EntryInfo<H::InfoType>) -> Result<()> {
         self.helper
-            .process_file(e)
+            .process_file(&ei.entry, &mut ei.info)
             .map_err(|e| self.helper.handle_error(e))
     }
 }

@@ -8,9 +8,9 @@ use walkdir::DirEntry;
 use crate::imt::crawler::{CrawlHelper, Crawler};
 use crate::imt::Result;
 
-// TODO: image_type is an expensive operation, so we should only call it once.
 // TODO: similarly, the first N bytes can be read and cached to avoid multiple file reads.
 
+#[derive(Copy, Clone)]
 enum ImageType {
     JPEG,
     GIF,
@@ -102,6 +102,7 @@ fn is_hidden(e: &DirEntry) -> bool {
 }
 
 fn image_type(path: &Path) -> Result<Option<ImageType>> {
+    eprintln!("IMAGE TYPE FOR: {:?}", path);
     let mut file = File::open(path)?;
     let image_type = if is_jpeg(&mut file)? {
         Some(ImageType::JPEG)
@@ -115,13 +116,33 @@ fn image_type(path: &Path) -> Result<Option<ImageType>> {
     Ok(image_type)
 }
 
+#[derive(Default)]
+struct Info {
+    image_type: Option<Option<ImageType>>
+}
+
+impl Info {
+    fn image_type(&mut self, e: &DirEntry) -> Result<Option<ImageType>> {
+        match self.image_type {
+            Some(it) => Ok(it),
+            None => {
+                let it = image_type(e.path())?;
+                self.image_type = Some(it);
+                Ok(it)
+            }
+        }
+    }
+}
+
 impl CrawlHelper for Helper {
+    type InfoType = Info;
+
     fn should_descend(&self, e: &DirEntry) -> Result<bool> {
         // Basically just trimming off hidden directories.
         Ok(!is_hidden(e))
     }
 
-    fn should_process_file(&self, e: &DirEntry) -> Result<bool> {
+    fn should_process_file(&self, e: &DirEntry, it: &mut Self::InfoType) -> Result<bool> {
         // We only want to process
         //   1) image files of a format we can determine,
         //   2) that have no file extension.
@@ -130,12 +151,13 @@ impl CrawlHelper for Helper {
         if has_extension(path) {
             Ok(false)
         } else {
-            Ok(image_type(path).unwrap_or(None).map_or(false, |_| true))
+            Ok(it.image_type(e).unwrap_or(None).map_or(false, |_| true))
         }
     }
 
-    fn process_file(&self, e: &DirEntry) -> Result<()> {
-        let image_type = image_type(e.path())?;
+    fn process_file(&self, e: &DirEntry, it: &mut Self::InfoType) -> Result<()> {
+        //let image_type = image_type(e.path())?;
+        let image_type = it.image_type(e)?;
         eprintln!(
             "PROCESS: {}: {}",
             image_type.map_or("???", |it| it.preferred_extension()),
