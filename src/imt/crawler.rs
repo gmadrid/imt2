@@ -31,6 +31,10 @@ pub trait CrawlHelper {
     fn process_file(&self, e: &DirEntry) -> Result<()>;
 }
 
+struct EntryInfo {
+    entry: DirEntry,
+}
+
 impl<H> Crawler<H>
 where
     H: CrawlHelper,
@@ -46,13 +50,24 @@ where
     }
 
     pub fn crawl(&self) -> Result<()> {
-        for entry in WalkDir::new(&self.path)
+        for ei in WalkDir::new(&self.path)
             .into_iter()
-            .filter_entry(|e| self.filter(e))
+            .filter_map(|re| {
+                // TODO: This silently filters errors. Is that what we want?
+                re.ok().and_then(|e| {
+                    let ei = EntryInfo { entry: e };
+                    if self.filter(&ei) {
+                        Some(ei)
+                    } else {
+                        None
+                    }
+                })
+            })
         {
-            let result = entry
-                .map_err(|err| ImtError::from(err))
-                .and_then(|e| self.process_entry(&e));
+            let result = self.process_entry(&ei.entry);
+            //let result = self.
+            //    .map_err(|err| ImtError::from(err))
+            //    .and_then(|e| self.process_entry(&e));
             if result.is_err() {
                 // unwrap: safe because we are inside is_err() case.
                 self.helper.handle_error(result.unwrap_err());
@@ -62,26 +77,27 @@ where
         Ok(())
     }
 
-    fn filter(&self, e: &DirEntry) -> bool {
-        if e.path().is_dir() {
-            self.filter_dir(e)
-        } else if e.path().is_file() && e.path().exists() {
-            self.filter_file(e)
+    fn filter(&self, ei: &EntryInfo) -> bool {
+        let path = ei.entry.path();
+        if path.is_dir() {
+            self.filter_dir(ei)
+        } else if path.is_file() && path.exists() {
+            self.filter_file(ei)
         } else {
             false
         }
     }
 
-    fn filter_dir(&self, e: &DirEntry) -> bool {
+    fn filter_dir(&self, e: &EntryInfo) -> bool {
         self.helper
-            .should_descend(e)
+            .should_descend(&e.entry)
             .map_err(|e| self.helper.handle_error(e))
             .unwrap_or(false)
     }
 
-    fn filter_file(&self, e: &DirEntry) -> bool {
+    fn filter_file(&self, e: &EntryInfo) -> bool {
         self.helper
-            .should_process_file(e)
+            .should_process_file(&e.entry)
             .map_err(|e| self.helper.handle_error(e))
             .unwrap_or(false)
     }
