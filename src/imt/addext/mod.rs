@@ -8,6 +8,8 @@ use walkdir::DirEntry;
 use crate::imt::crawler::{CrawlHelper, Crawler};
 use crate::imt::Result;
 
+//TODO: figure out why it's seeing a file in the .hidden directory.
+
 #[derive(Copy, Clone)]
 enum ImageType {
     JPEG,
@@ -37,12 +39,6 @@ pub struct AddExt {
     directories: Vec<String>,
 }
 
-fn read_first_two_bytes(file: &mut File) -> Result<[u8; 2]> {
-    let mut bytes = [0u8; 2];
-    read_bytes(file, &mut bytes, SeekFrom::Start(0))?;
-    Ok(bytes)
-}
-
 fn read_last_two_bytes(file: &mut File) -> Result<[u8; 2]> {
     let mut bytes = [0u8; 2];
     read_bytes(file, &mut bytes, SeekFrom::End(-2))?;
@@ -50,7 +46,6 @@ fn read_last_two_bytes(file: &mut File) -> Result<[u8; 2]> {
 }
 
 fn read_bytes(file: &mut File, buf: &mut [u8], location: SeekFrom) -> Result<()> {
-    eprintln!("Reading bytes: {:?}", file);
     file.seek(location)?;
     file.read_exact(buf)?;
 
@@ -93,9 +88,8 @@ fn is_hidden(e: &DirEntry) -> bool {
     name.map_or(false, |n| n.to_string_lossy().starts_with("."))
 }
 
-fn image_type(path: &Path, bytes: &InfoBufType) -> Result<Option<ImageType>> {
-    let mut file = File::open(path)?;
-    let image_type = if is_jpeg(&mut file, bytes)? {
+fn image_type(file: &mut File, bytes: &InfoBufType) -> Result<Option<ImageType>> {
+    let image_type = if is_jpeg(file, bytes)? {
         Some(ImageType::JPEG)
     } else if is_png(bytes)? {
         Some(ImageType::PNG)
@@ -120,19 +114,19 @@ impl Info {
         match self.image_type {
             Some(it) => Ok(it),
             None => {
-                let it = image_type(e.path(), self.first_ten_bytes(e)?)?;
+                let mut file = File::open(e.path())?;
+                let bytes = self.first_ten_bytes(&mut file)?;
+                let it = image_type(&mut file, bytes)?;
                 self.image_type = Some(it);
                 Ok(it)
             }
         }
     }
 
-    fn first_ten_bytes<'a, 'b>(&'a mut self, e: &'b DirEntry) -> Result<&'a InfoBufType> {
+    fn first_ten_bytes<'a, 'b>(&'a mut self, file: &mut File) -> Result<&'a InfoBufType> {
         if self.buffer.is_none() {
-            let mut file = File::open(e.path())?;
-            eprintln!("first_ten_bytes: {}", e.path().display());
             let mut buf = [0; 10];
-            read_first_bytes(&mut file, &mut buf)?;
+            read_first_bytes(file, &mut buf)?;
             self.buffer = Some(buf);
         }
 
