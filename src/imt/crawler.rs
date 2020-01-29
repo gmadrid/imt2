@@ -1,6 +1,6 @@
-use std::path::{PathBuf};
+use std::path::PathBuf;
 
-use crate::{ImtError, Result};
+use crate::Result;
 use walkdir::{DirEntry, WalkDir};
 
 pub struct Crawler<H>
@@ -50,11 +50,10 @@ where
     }
 
     pub fn crawl(&self) -> Result<()> {
-        for ei in WalkDir::new(&self.path)
-            .into_iter()
-            .filter_map(|re| {
-                // TODO: This silently filters errors. Is that what we want?
-                re.ok().and_then(|e| {
+        for ei in WalkDir::new(&self.path).into_iter().filter_map(|re| {
+            re.map_err(|err| self.helper.handle_error(err))
+                .ok()
+                .and_then(|e| {
                     let ei = EntryInfo { entry: e };
                     if self.filter(&ei) {
                         Some(ei)
@@ -62,8 +61,7 @@ where
                         None
                     }
                 })
-            })
-        {
+        }) {
             let result = self.process_entry(&ei.entry);
             //let result = self.
             //    .map_err(|err| ImtError::from(err))

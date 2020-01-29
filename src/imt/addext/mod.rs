@@ -136,7 +136,11 @@ impl CrawlHelper for Helper {
 
     fn process_file(&self, e: &DirEntry) -> Result<()> {
         let image_type = image_type(e.path())?;
-        eprintln!("PROCESS: {}: {}", image_type.map_or("???", |it| it.preferred_extension()),  e.path().display());
+        eprintln!(
+            "PROCESS: {}: {}",
+            image_type.map_or("???", |it| it.preferred_extension()),
+            e.path().display()
+        );
         Ok(())
     }
 }
