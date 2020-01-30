@@ -105,6 +105,11 @@ fn image_type(file: &mut File, bytes: &InfoBufType) -> Result<Option<ImageType>>
 
 #[derive(Default)]
 struct Info {
+    // We allow an Option of Option because there are three states:
+    // 1. We have not determined the image type.  (None)
+    // 2. We have determined that it is not an image.  (Some(None))
+    // 3. We have determined that it is an image.  (Some(Some(JPEG)))
+    #[allow(clippy::option_option)]
     image_type: Option<Option<ImageType>>,
     buffer: Option<InfoBufType>,
 }
