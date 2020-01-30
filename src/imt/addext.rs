@@ -2,11 +2,11 @@ use std::fs::File;
 use std::io::{Read, Seek, SeekFrom};
 use std::path::Path;
 
+use anyhow::Result;
 use structopt::StructOpt;
 use walkdir::DirEntry;
 
 use crate::imt::crawler::{CrawlHelper, Crawler};
-use crate::imt::Result;
 
 // TODO: figure out why it's seeing a file in the .hidden directory.
 

@@ -2,7 +2,7 @@ use std::error::Error;
 use std::fmt::Display;
 use std::fmt::Formatter;
 
-pub type Result<T> = std::result::Result<T, ImtError>;
+//pub type Result<T> = std::result::Result<T, ImtError>;
 
 #[derive(Debug)]
 pub enum ImtError {

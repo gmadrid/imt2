@@ -1,7 +1,7 @@
+use anyhow::Result;
 use structopt::StructOpt;
 
 use crate::imt::addext::{process_addext, AddExt};
-use crate::imt::error::Result;
 //use crate::imt::fileinfo::{FileInfo, Files};
 use crate::imt::finddups::{process_finddups, FindDups};
 use crate::imt::findneardups::{process_findneardups, FindNearDups};

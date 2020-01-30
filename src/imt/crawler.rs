@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use crate::Result;
+use anyhow::{Result};
 use walkdir::{DirEntry, WalkDir};
 
 pub struct Crawler<H>
@@ -14,9 +14,7 @@ where
 pub trait CrawlHelper {
     type InfoType: Default;
 
-    fn handle_error<E>(&self, err: E)
-    where
-        E: std::error::Error,
+    fn handle_error(&self, err: &anyhow::Error)
     {
         eprintln!("Error: {}", err.description());
     }
@@ -56,7 +54,7 @@ where
 
     pub fn crawl(&self) -> Result<()> {
         for mut ei in WalkDir::new(&self.path).into_iter().filter_map(|re| {
-            re.map_err(|err| self.helper.handle_error(err))
+            re.map_err(|err| self.helper.handle_error(&anyhow::Error::from(err)))
                 .ok()
                 .and_then(|e| {
                     let mut ei = EntryInfo {
@@ -70,9 +68,9 @@ where
                     }
                 })
         }) {
-	    if let Err(err) = self.process_entry(&mut ei) {
-		self.helper.handle_error(err);
-	    }
+            if let Err(err) = self.process_entry(&mut ei) {
+                self.helper.handle_error(&err);
+            }
         }
 
         Ok(())
@@ -92,14 +90,14 @@ where
     fn filter_dir(&self, ei: &EntryInfo<H::InfoType>) -> bool {
         self.helper
             .should_descend(&ei.entry)
-            .map_err(|e| self.helper.handle_error(e))
+            .map_err(|e| self.helper.handle_error(&e))
             .unwrap_or(false)
     }
 
     fn filter_file(&self, ei: &mut EntryInfo<H::InfoType>) -> bool {
         self.helper
             .should_process_file(&ei.entry, &mut ei.info)
-            .map_err(|e| self.helper.handle_error(e))
+            .map_err(|e| self.helper.handle_error(&e))
             .unwrap_or(false)
     }
 

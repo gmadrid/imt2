@@ -1,3 +1,3 @@
 mod imt;
 
-pub use imt::{process_command, Command, ImtError, Result};
+pub use imt::{process_command, Command, ImtError};
