@@ -81,7 +81,9 @@ fn has_extension(path: &Path) -> bool {
     path.extension().map(|e| !e.is_empty()).unwrap_or(false)
 }
 
-struct Helper {}
+struct Helper {
+    dry_run: bool,
+}
 
 fn is_hidden(e: &DirEntry) -> bool {
     let name = e.path().file_name();
@@ -158,18 +160,34 @@ impl CrawlHelper for Helper {
 
     fn process_file(&self, e: &DirEntry, it: &mut Self::InfoType) -> Result<()> {
         let image_type = it.image_type(e)?;
-        eprintln!(
-            "PROCESS: {}: {}",
-            image_type.map_or("???", |it| it.preferred_extension()),
-            e.path().display()
-        );
+
+        // should_process_file should filter out anything that is not an image.
+        assert!(image_type.is_some());
+
+        let path = e.path();
+        let image_type = image_type.unwrap();
+        let ext = image_type.preferred_extension();
+        if self.dry_run {
+            eprintln!("Adding '{}' to {}", ext, path.display());
+        } else {
+            let mut new_name = path.to_path_buf();
+            if new_name.set_extension(ext) {
+                // TODO: verbose option?
+                eprintln!("Moving {} to {}", path.display(), new_name.display());
+                std::fs::rename(path, new_name)?;
+            } else {
+                eprintln!("Failed to add extension to {}", path.display())
+            }
+        }
         Ok(())
     }
 }
 
 pub fn process_addext(ae: &AddExt) -> Result<()> {
     for dir in &ae.directories {
-        let crawler = Crawler::new(dir, Helper {});
+        let crawler = Crawler::new(dir, Helper {
+            dry_run: ae.dry_run
+        });
         crawler.crawl()?;
     }
     Ok(())
