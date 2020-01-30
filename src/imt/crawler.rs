@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use anyhow::{Result};
+use anyhow::Result;
 use walkdir::{DirEntry, WalkDir};
 
 pub struct Crawler<H>
@@ -14,8 +14,7 @@ where
 pub trait CrawlHelper {
     type InfoType: Default;
 
-    fn handle_error(&self, err: &anyhow::Error)
-    {
+    fn handle_error(&self, err: &anyhow::Error) {
         eprintln!("Error: {}", err.description());
     }
     fn should_descend(&self, _e: &DirEntry) -> Result<bool> {

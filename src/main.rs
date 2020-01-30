@@ -1,4 +1,4 @@
-use imt::{process_command};
+use imt::process_command;
 use structopt::StructOpt;
 
 fn main() -> anyhow::Result<()> {

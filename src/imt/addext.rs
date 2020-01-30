@@ -185,9 +185,12 @@ impl CrawlHelper for Helper {
 
 pub fn process_addext(ae: &AddExt) -> Result<()> {
     for dir in &ae.directories {
-        let crawler = Crawler::new(dir, Helper {
-            dry_run: ae.dry_run
-        });
+        let crawler = Crawler::new(
+            dir,
+            Helper {
+                dry_run: ae.dry_run,
+            },
+        );
         crawler.crawl()?;
     }
     Ok(())
