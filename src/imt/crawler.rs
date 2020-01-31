@@ -52,25 +52,25 @@ where
     }
 
     pub fn crawl(&self) -> Result<()> {
-        for mut ei in WalkDir::new(&self.path).into_iter().filter_map(|re| {
-            re.map_err(|err| self.helper.handle_error(&anyhow::Error::from(err)))
-                .ok()
-                .and_then(|e| {
-                    let mut ei = EntryInfo {
-                        entry: e,
-                        info: H::InfoType::default(),
-                    };
-                    if self.filter(&mut ei) {
-                        Some(ei)
-                    } else {
-                        None
-                    }
-                })
-        }) {
-            if let Err(err) = self.process_entry(&mut ei) {
-                self.helper.handle_error(&err);
-            }
-        }
+        // for mut ei in WalkDir::new(&self.path).into_iter().filter_map(|re| {
+        //     re.map_err(|err| self.helper.handle_error(&anyhow::Error::from(err)))
+        //         .ok()
+        //         .and_then(|e| {
+        //             let mut ei = EntryInfo {
+        //                 entry: e,
+        //                 info: H::InfoType::default(),
+        //             };
+        //             if self.filter(&mut ei) {
+        //                 Some(ei)
+        //             } else {
+        //                 None
+        //             }
+        //         })
+        // }) {
+        //     if let Err(err) = self.process_entry(&mut ei) {
+        //         self.helper.handle_error(&err);
+        //     }
+        // }
 
         Ok(())
     }
