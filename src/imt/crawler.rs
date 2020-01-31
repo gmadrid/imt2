@@ -52,37 +52,48 @@ where
     }
 
     pub fn crawl(&self) -> Result<()> {
-        // for mut ei in WalkDir::new(&self.path).into_iter().filter_map(|re| {
-        //     re.map_err(|err| self.helper.handle_error(&anyhow::Error::from(err)))
-        //         .ok()
-        //         .and_then(|e| {
-        //             let mut ei = EntryInfo {
-        //                 entry: e,
-        //                 info: H::InfoType::default(),
-        //             };
-        //             if self.filter(&mut ei) {
-        //                 Some(ei)
-        //             } else {
-        //                 None
-        //             }
-        //         })
-        // }) {
-        //     if let Err(err) = self.process_entry(&mut ei) {
-        //         self.helper.handle_error(&err);
-        //     }
-        // }
-
+	// This is basically a for loop, but we have to expand it out
+	// and write it ourselves so that we can call it.skip_current_dir().
+	// We cannot use filter_entry() directly since we want to create
+	// EntryInfos to pass to all of the helpers.
+	// TODO: return Result from all of the helpers and DTRT with errors.
+	let mut it = WalkDir::new(&self.path).into_iter();
+	loop {
+	    let entry = match it.next() {
+		None => break,
+		Some(Err(err)) => {
+		    self.helper.handle_error(&(err.into()));
+		    continue;
+		}
+		Some(Ok(e)) => e,
+	    };
+	    let mut ei = EntryInfo {
+		entry: entry,
+		info: H::InfoType::default(),
+	    };
+	    let (b, is_dir) = self.filter(&mut ei);
+	    if b {
+		if let Err(err) = self.process_entry(&mut ei) {
+		    self.helper.handle_error(&err);
+		}
+	    } else {
+		if is_dir {
+		    it.skip_current_dir();
+		}
+	    }
+	}
         Ok(())
     }
 
-    fn filter(&self, ei: &mut EntryInfo<H::InfoType>) -> bool {
+    // Returns => (filter, is_dir)
+    fn filter(&self, ei: &mut EntryInfo<H::InfoType>) -> (bool, bool) {
         let path = ei.entry.path();
         if path.is_dir() {
-            self.filter_dir(ei)
+            (self.filter_dir(ei), true)
         } else if path.is_file() && path.exists() {
-            self.filter_file(ei)
+            (self.filter_file(ei), false)
         } else {
-            false
+            (false, false)
         }
     }
 
