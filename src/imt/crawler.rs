@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use anyhow::Result;
-use log::{debug, error};
+use log::{debug, error, info};
 use std::error::Error;
 use walkdir::{DirEntry, WalkDir};
 
@@ -76,50 +76,56 @@ where
                 entry,
                 info: H::InfoType::default(),
             };
-            let (b, is_dir) = self.filter(&mut ei);
-            if b {
-                if let Err(err) = self.process_entry(&mut ei) {
+            match self.filter(&mut ei) {
+                Err(err) => {
                     error!(
-                        "Error processing entry for {}: {}",
+                        "Error processing filter for file {}: {}",
                         ei.entry.path().display(),
                         err.description()
                     );
-                    self.helper.handle_error(&err);
+                    self.helper.handle_error(&(err.into()));
                 }
-            } else {
-                debug!("Filtering {}", ei.entry.path().display());
-                if is_dir {
-                    it.skip_current_dir();
+                Ok((b, is_dir)) => {
+                    if b {
+                        if let Err(err) = self.process_entry(&mut ei) {
+                            error!(
+                                "Error processing entry for {}: {}",
+                                ei.entry.path().display(),
+                                err.description()
+                            );
+                            self.helper.handle_error(&err);
+                        }
+                    } else {
+                        debug!("Skipping {}", ei.entry.path().display());
+                        if is_dir {
+                            info!("Not walking into {}", ei.entry.path().display());
+                            it.skip_current_dir();
+                        }
+                    }
                 }
             }
         }
         Ok(())
     }
 
-    // Returns => (filter, is_dir)
-    fn filter(&self, ei: &mut EntryInfo<H::InfoType>) -> (bool, bool) {
+    // Returns => Ok((filter, is_dir))
+    fn filter(&self, ei: &mut EntryInfo<H::InfoType>) -> Result<(bool, bool)> {
         let path = ei.entry.path();
-        if path.is_dir() {
-            (self.filter_dir(ei), true)
+        Ok(if path.is_dir() {
+            (self.filter_dir(ei)?, true)
         } else if path.is_file() && path.exists() {
-            (self.filter_file(ei), false)
+            (self.filter_file(ei)?, false)
         } else {
             (false, false)
-        }
+        })
     }
 
-    fn filter_dir(&self, ei: &EntryInfo<H::InfoType>) -> bool {
-        self.helper
-            .should_descend(&ei.entry)
-            .map_err(|e| self.helper.handle_error(&e))
-            .unwrap_or(false)
+    fn filter_dir(&self, ei: &EntryInfo<H::InfoType>) -> Result<bool> {
+        self.helper.should_descend(&ei.entry)
     }
 
-    fn filter_file(&self, ei: &mut EntryInfo<H::InfoType>) -> bool {
-        self.helper
-            .should_process_file(&ei.entry, &mut ei.info)
-            .map_err(|e| self.helper.handle_error(&e))
-            .unwrap_or(false)
+    fn filter_file(&self, ei: &mut EntryInfo<H::InfoType>) -> Result<bool> {
+        self.helper.should_process_file(&ei.entry, &mut ei.info)
     }
 
     fn process_entry(&self, ei: &mut EntryInfo<H::InfoType>) -> Result<()> {
