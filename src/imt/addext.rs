@@ -3,7 +3,7 @@ use std::io::{Read, Seek, SeekFrom};
 use std::path::Path;
 
 use anyhow::Result;
-use log::{info};
+use log::{info, warn};
 use structopt::StructOpt;
 use walkdir::DirEntry;
 

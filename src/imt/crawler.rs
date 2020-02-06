@@ -53,36 +53,36 @@ where
     }
 
     pub fn crawl(&self) -> Result<()> {
-	// This is basically a for loop, but we have to expand it out
-	// and write it ourselves so that we can call it.skip_current_dir().
-	// We cannot use filter_entry() directly since we want to create
-	// EntryInfos to pass to all of the helpers.
-	// TODO: return Result from all of the helpers and DTRT with errors.
-	let mut it = WalkDir::new(&self.path).into_iter();
-	loop {
-	    let entry = match it.next() {
-		None => break,
-		Some(Err(err)) => {
-		    self.helper.handle_error(&(err.into()));
-		    continue;
-		}
-		Some(Ok(e)) => e,
-	    };
-	    let mut ei = EntryInfo {
-		entry: entry,
-		info: H::InfoType::default(),
-	    };
-	    let (b, is_dir) = self.filter(&mut ei);
-	    if b {
-		if let Err(err) = self.process_entry(&mut ei) {
-		    self.helper.handle_error(&err);
-		}
-	    } else {
-		if is_dir {
-		    it.skip_current_dir();
-		}
-	    }
-	}
+        // This is basically a for loop, but we have to expand it out
+        // and write it ourselves so that we can call it.skip_current_dir().
+        // We cannot use filter_entry() directly since we want to create
+        // EntryInfos to pass to all of the helpers.
+        // TODO: return Result from all of the helpers and DTRT with errors.
+        let mut it = WalkDir::new(&self.path).into_iter();
+        loop {
+            let entry = match it.next() {
+                None => break,
+                Some(Err(err)) => {
+                    self.helper.handle_error(&(err.into()));
+                    continue;
+                }
+                Some(Ok(e)) => e,
+            };
+            let mut ei = EntryInfo {
+                entry: entry,
+                info: H::InfoType::default(),
+            };
+            let (b, is_dir) = self.filter(&mut ei);
+            if b {
+                if let Err(err) = self.process_entry(&mut ei) {
+                    self.helper.handle_error(&err);
+                }
+            } else {
+                if is_dir {
+                    it.skip_current_dir();
+                }
+            }
+        }
         Ok(())
     }
 
