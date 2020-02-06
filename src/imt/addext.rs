@@ -28,6 +28,7 @@ impl ImageType {
     }
 }
 
+/// Add extensions to image files with no extensions.
 #[derive(StructOpt, Debug)]
 pub struct AddExt {
     /// Print actions only.
