@@ -40,6 +40,15 @@ where
     info: T,
 }
 
+impl<T> EntryInfo<T>
+where
+    T: Default,
+{
+    fn path_to_display(&self) -> std::path::Display {
+        self.entry.path().display()
+    }
+}
+
 impl<H> Crawler<H>
 where
     H: CrawlHelper,
@@ -80,7 +89,7 @@ where
                 Err(err) => {
                     error!(
                         "Error processing filter for file {}: {}",
-                        ei.entry.path().display(),
+                        ei.path_to_display(),
                         err.description()
                     );
                     self.helper.handle_error(&(err.into()));
@@ -90,15 +99,15 @@ where
                         if let Err(err) = self.process_entry(&mut ei) {
                             error!(
                                 "Error processing entry for {}: {}",
-                                ei.entry.path().display(),
+                                ei.path_to_display(),
                                 err.description()
                             );
                             self.helper.handle_error(&err);
                         }
                     } else {
-                        debug!("Skipping {}", ei.entry.path().display());
+                        debug!("Skipping {}", ei.path_to_display());
                         if is_dir {
-                            info!("Not walking into {}", ei.entry.path().display());
+                            info!("Not walking into {}", ei.path_to_display());
                             it.skip_current_dir();
                         }
                     }
