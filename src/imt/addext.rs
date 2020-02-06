@@ -9,7 +9,18 @@ use walkdir::DirEntry;
 
 use crate::imt::crawler::{CrawlHelper, Crawler};
 
-// TODO: figure out why it's seeing a file in the .hidden directory.
+/// Add extensions to image files with no extensions.
+#[derive(StructOpt, Debug)]
+pub struct AddExt {
+    /// Print actions only.
+    #[structopt(short = "n", long)]
+    dry_run: bool,
+
+    /// The directories to search
+    // TODO: figure out what this does if the filename is not UTF-8.
+    #[structopt(min_values(1))]
+    directories: Vec<String>,
+}
 
 #[derive(Copy, Clone)]
 enum ImageType {
@@ -26,19 +37,6 @@ impl ImageType {
             ImageType::PNG => "png",
         }
     }
-}
-
-/// Add extensions to image files with no extensions.
-#[derive(StructOpt, Debug)]
-pub struct AddExt {
-    /// Print actions only.
-    #[structopt(short = "n", long)]
-    dry_run: bool,
-
-    /// The directories to search
-    // TODO: figure out what this does if the filename is not UTF-8.
-    #[structopt(min_values(1))]
-    directories: Vec<String>,
 }
 
 fn read_last_two_bytes(file: &mut File) -> Result<[u8; 2]> {
@@ -92,19 +90,6 @@ fn is_hidden(e: &DirEntry) -> bool {
     name.map_or(false, |n| n.to_string_lossy().starts_with('.'))
 }
 
-fn image_type(file: &mut File, bytes: &InfoBufType) -> Result<Option<ImageType>> {
-    let image_type = if is_jpeg(file, bytes)? {
-        Some(ImageType::JPEG)
-    } else if is_png(bytes)? {
-        Some(ImageType::PNG)
-    } else if is_gif(bytes)? {
-        Some(ImageType::GIF)
-    } else {
-        None
-    };
-    Ok(image_type)
-}
-
 #[derive(Default)]
 struct Info {
     // We allow an Option of Option because there are three states:
@@ -124,12 +109,25 @@ impl Info {
             Some(it) => Ok(it),
             None => {
                 let mut file = File::open(e.path())?;
-                let bytes = self.first_ten_bytes(&mut file)?;
-                let it = image_type(&mut file, bytes)?;
+                let it = self.image_type_from_file(&mut file)?;
                 self.image_type = Some(it);
                 Ok(it)
             }
         }
+    }
+
+    fn image_type_from_file(&mut self, file: &mut File) -> Result<Option<ImageType>> {
+        let bytes = self.first_ten_bytes(file)?;
+        let image_type = if is_jpeg(file, bytes)? {
+            Some(ImageType::JPEG)
+        } else if is_png(bytes)? {
+            Some(ImageType::PNG)
+        } else if is_gif(bytes)? {
+            Some(ImageType::GIF)
+        } else {
+            None
+        };
+        Ok(image_type)
     }
 
     fn first_ten_bytes(&mut self, file: &mut File) -> Result<&InfoBufType> {
