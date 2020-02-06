@@ -1,6 +1,8 @@
 use std::path::PathBuf;
 
 use anyhow::Result;
+use log::{debug, error};
+use std::error::Error;
 use walkdir::{DirEntry, WalkDir};
 
 pub struct Crawler<H>
@@ -58,26 +60,34 @@ where
         // We cannot use filter_entry() directly since we want to create
         // EntryInfos to pass to all of the helpers.
         // TODO: return Result from all of the helpers and DTRT with errors.
+        debug!("Walking into {}", self.path.display());
         let mut it = WalkDir::new(&self.path).into_iter();
         loop {
             let entry = match it.next() {
                 None => break,
                 Some(Err(err)) => {
+                    error!("Error getting next DirEntry: {}", err.description());
                     self.helper.handle_error(&(err.into()));
                     continue;
                 }
                 Some(Ok(e)) => e,
             };
             let mut ei = EntryInfo {
-                entry: entry,
+                entry,
                 info: H::InfoType::default(),
             };
             let (b, is_dir) = self.filter(&mut ei);
             if b {
                 if let Err(err) = self.process_entry(&mut ei) {
+                    error!(
+                        "Error processing entry for {}: {}",
+                        ei.entry.path().display(),
+                        err.description()
+                    );
                     self.helper.handle_error(&err);
                 }
             } else {
+                debug!("Filtering {}", ei.entry.path().display());
                 if is_dir {
                     it.skip_current_dir();
                 }

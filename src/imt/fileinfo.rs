@@ -33,3 +33,24 @@ impl FileInfo {
         self.hashes.insert(hash_name, hash_value);
     }
 }
+
+//fn _exercise_serialization() {
+//    let mut files = Files::default();
+//
+//    let mut fi = FileInfo::new("first/bar/baz".into());
+//    fi.add_hash("foo".into(), "foovalueofthehash".into());
+//    fi.add_hash("bar".into(), "barvalueofthehash".into());
+//    files.add_file(fi);
+//
+//    let mut fi = FileInfo::new("second/quux.jpg".into());
+//    fi.add_hash("quux".into(), "quuxvalueofhash".into());
+//    fi.add_hash("quip".into(), "quipvalueofhash".into());
+//    files.add_file(fi);
+//
+//    let s = toml::to_string(&files).unwrap();
+//    println!("THETOML: {}", s);
+//
+//    let newfiles = toml::from_str::<Files>(&s).unwrap();
+//    println!("RECON: {:?}", newfiles);
+//}
+//

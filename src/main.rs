@@ -31,10 +31,11 @@ fn set_up_logs(opts: &Opts) -> Result<()> {
 
     if let Some(filename) = &opts.log_file {
         let file = File::create(filename)?;
-        logs.push(
-            // unwrap: DANGER!
-            WriteLogger::new(LevelFilter::Debug, Config::default(), file),
-        );
+        logs.push(WriteLogger::new(
+            LevelFilter::Debug,
+            Config::default(),
+            file,
+        ));
     }
 
     CombinedLogger::init(logs)?;
