@@ -92,7 +92,7 @@ where
                         ei.path_to_display(),
                         err.description()
                     );
-                    self.helper.handle_error(&(err.into()));
+                    self.helper.handle_error(&err);
                 }
                 Ok((b, is_dir)) => {
                     if b {
