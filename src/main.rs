@@ -2,8 +2,8 @@ use anyhow::Result;
 use imt::{process_command, Command};
 use log::LevelFilter;
 use simplelog::{CombinedLogger, Config, SharedLogger, TermLogger, TerminalMode, WriteLogger};
-use structopt::StructOpt;
 use std::fs::File;
+use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
 pub struct Opts {
@@ -33,7 +33,7 @@ fn set_up_logs(opts: &Opts) -> Result<()> {
         let file = File::create(filename)?;
         logs.push(
             // unwrap: DANGER!
-            WriteLogger::new(LevelFilter::Debug, Config::default(), file)
+            WriteLogger::new(LevelFilter::Debug, Config::default(), file),
         );
     }
 
