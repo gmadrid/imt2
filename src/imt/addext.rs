@@ -3,6 +3,7 @@ use std::io::{Read, Seek, SeekFrom};
 use std::path::Path;
 
 use anyhow::Result;
+use log::{info};
 use structopt::StructOpt;
 use walkdir::DirEntry;
 
@@ -172,16 +173,17 @@ impl CrawlHelper for Helper {
         let path = e.path();
         let image_type = image_type.unwrap();
         let ext = image_type.preferred_extension();
+        info!("Adding {} extension to {}.", ext, path.display());
         if self.dry_run {
+            info!("Dry run. File operation skipped.");
             eprintln!("Adding '{}' to {}", ext, path.display());
         } else {
             let mut new_name = path.to_path_buf();
             if new_name.set_extension(ext) {
                 // TODO: verbose option?
-                eprintln!("Moving {} to {}", path.display(), new_name.display());
                 std::fs::rename(path, new_name)?;
             } else {
-                eprintln!("Failed to add extension to {}", path.display())
+                warn!("Failed to add extension, {}, to {}", ext, path.display());
             }
         }
         Ok(())

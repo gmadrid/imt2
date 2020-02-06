@@ -15,6 +15,7 @@ pub trait CrawlHelper {
     type InfoType: Default;
 
     fn handle_error(&self, err: &anyhow::Error) {
+        log::error!("{}", err.description());
         eprintln!("Error: {}", err.description());
     }
     fn should_descend(&self, _e: &DirEntry) -> Result<bool> {
