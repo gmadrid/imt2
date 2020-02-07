@@ -8,6 +8,7 @@ use structopt::StructOpt;
 use walkdir::DirEntry;
 
 use crate::imt::crawler::{CrawlHelper, Crawler};
+use crate::imt::filer::Filer;
 
 /// Add extensions to image files with no extensions.
 #[derive(StructOpt, Debug)]
@@ -83,6 +84,7 @@ fn has_extension(path: &Path) -> bool {
 
 struct Helper {
     dry_run: bool,
+    filer: Option<Filer>,
 }
 
 fn is_hidden(e: &DirEntry) -> bool {
@@ -166,6 +168,8 @@ impl CrawlHelper for Helper {
     fn process_file(&self, e: &DirEntry, it: &mut Self::InfoType) -> Result<()> {
         let image_type = it.image_type(e)?;
 
+        self.filer.as_ref().map(|f| f.send(7));
+
         // should_process_file should filter out anything that is not an image.
         assert!(image_type.is_some());
 
@@ -189,12 +193,13 @@ impl CrawlHelper for Helper {
     }
 }
 
-pub fn process_addext(ae: &AddExt) -> Result<()> {
+pub fn process_addext(ae: &AddExt, filer: Option<Filer>) -> Result<()> {
     for dir in &ae.directories {
         let crawler = Crawler::new(
             dir,
             Helper {
                 dry_run: ae.dry_run,
+                filer: filer.clone(),
             },
         );
         crawler.crawl()?;

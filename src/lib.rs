@@ -1,3 +1,3 @@
 mod imt;
 
-pub use imt::{process_command, Command};
+pub use imt::{process_command, Command, Filer};

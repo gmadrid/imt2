@@ -1,5 +1,5 @@
 use anyhow::Result;
-use imt::{process_command, Command};
+use imt::{process_command, Command, Filer};
 use log::LevelFilter;
 use simplelog::{CombinedLogger, Config, SharedLogger, TermLogger, TerminalMode, WriteLogger};
 use std::fs::File;
@@ -42,9 +42,15 @@ fn set_up_logs(opts: &Opts) -> Result<()> {
     Ok(())
 }
 
+fn start_filer() -> Result<Filer> {
+    Filer::new()
+}
+
 fn main() -> anyhow::Result<()> {
     let opts = Opts::from_args();
     set_up_logs(&opts)?;
 
-    process_command(opts.command)
+    let filer = start_filer()?;
+
+    process_command(opts.command, Some(filer))
 }
