@@ -1,15 +1,19 @@
+use std::fmt::{Display, Formatter};
 use std::sync::mpsc::{self, Receiver, Sender};
 use std::thread;
 
 use anyhow::Result;
 use log::{debug, info};
+use std::path::{PathBuf};
 
-type Message = u8;
+#[derive(Debug)]
+enum Message {
+    AddFile(PathBuf)
+}
 
 #[derive(Clone)]
 pub struct Filer {
     tx: Sender<Message>,
-    //    child: thread::JoinHandle<()>,
 }
 
 struct FilerProcess {}
@@ -26,9 +30,13 @@ impl Filer {
         Ok(Filer { tx })
     }
 
-    pub fn send(&self, msg: Message) -> Result<()> {
+    fn send(&self, msg: Message) -> Result<()> {
         self.tx.send(msg)?;
         Ok(())
+    }
+
+    pub fn add_file<P: Into<PathBuf>>(&self, path: P) -> Result<()> {
+        self.send(Message::AddFile(path.into()))
     }
 }
 
@@ -42,5 +50,11 @@ impl FilerProcess {
         for msg in rx.iter() {
             debug!("msg received: {}", msg);
         }
+    }
+}
+
+impl Display for Message {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        write!(f, "A MESSAGE that may be longer than expected.")
     }
 }

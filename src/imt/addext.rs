@@ -166,9 +166,11 @@ impl CrawlHelper for Helper {
     }
 
     fn process_file(&self, e: &DirEntry, it: &mut Self::InfoType) -> Result<()> {
-        let image_type = it.image_type(e)?;
+        self.filer.as_ref().map(|f| {
+            f.add_file(e.path())
+        });
 
-        self.filer.as_ref().map(|f| f.send(7));
+        let image_type = it.image_type(e)?;
 
         // should_process_file should filter out anything that is not an image.
         assert!(image_type.is_some());
