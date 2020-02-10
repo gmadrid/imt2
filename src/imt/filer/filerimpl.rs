@@ -8,7 +8,8 @@ use std::path::{PathBuf};
 
 #[derive(Debug)]
 enum Message {
-    AddFile(PathBuf)
+    AddFile(PathBuf),
+    AddHash(PathBuf, String),
 }
 
 #[derive(Clone)]
@@ -37,6 +38,10 @@ impl Filer {
 
     pub fn add_file<P: Into<PathBuf>>(&self, path: P) -> Result<()> {
         self.send(Message::AddFile(path.into()))
+    }
+
+    pub fn add_hash<P: Into<PathBuf>, S: Into<String>>(&self, path: P, hash: S) -> Result<()> {
+        self.send(Message::AddHash(path.into(), hash.into()))
     }
 }
 

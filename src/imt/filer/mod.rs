@@ -1,4 +1,3 @@
-mod fileinfo;
-mod filer;
+mod filerimpl;
 
-pub use filer::{Filer};
+pub use filerimpl::{Filer};
