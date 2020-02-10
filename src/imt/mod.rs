@@ -1,6 +1,7 @@
 mod addext;
 mod command;
 mod crawler;
+mod direntryutil;
 mod filer;
 mod finddups;
 mod findneardups;

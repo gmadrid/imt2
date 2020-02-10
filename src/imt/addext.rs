@@ -8,6 +8,7 @@ use structopt::StructOpt;
 use walkdir::DirEntry;
 
 use crate::imt::crawler::{CrawlHelper, Crawler};
+use crate::imt::direntryutil::is_hidden;
 use crate::imt::filer::Filer;
 
 /// Add extensions to image files with no extensions.
@@ -85,11 +86,6 @@ fn has_extension(path: &Path) -> bool {
 struct Helper {
     dry_run: bool,
     filer: Option<Filer>,
-}
-
-fn is_hidden(e: &DirEntry) -> bool {
-    let name = e.path().file_name();
-    name.map_or(false, |n| n.to_string_lossy().starts_with('.'))
 }
 
 #[derive(Default)]
