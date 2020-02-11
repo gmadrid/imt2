@@ -17,7 +17,7 @@ pub enum Command {
 pub fn process_command(command: Command, filer: Option<Filer>) -> Result<()> {
     match command {
         Command::AddExt(ae) => process_addext(&ae, filer),
-        Command::FindDups(fd) => process_finddups(&fd, filer),
+        Command::FindDups(fd) => process_finddups(&fd, filer.unwrap()),
         Command::FindNearDups(fnd) => process_findneardups(&fnd),
     }
 }

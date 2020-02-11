@@ -140,7 +140,7 @@ impl Info {
     }
 }
 
-impl CrawlHelper for Helper {
+impl<'a> CrawlHelper for Helper {
     type InfoType = Info;
 
     fn should_descend(&self, e: &DirEntry) -> Result<bool> {
@@ -162,9 +162,7 @@ impl CrawlHelper for Helper {
     }
 
     fn process_file(&self, e: &DirEntry, it: &mut Self::InfoType) -> Result<()> {
-        self.filer.as_ref().map(|f| {
-            f.add_file(e.path())
-        });
+        self.filer.as_ref().map(|f| f.add_file(e.path()));
 
         let image_type = it.image_type(e)?;
 

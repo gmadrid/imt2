@@ -2,9 +2,11 @@ use anyhow::Result;
 use structopt::StructOpt;
 use walkdir::DirEntry;
 
-use crate::imt::crawler::{Crawler, CrawlHelper};
+use crate::imt::crawler::{CrawlHelper, Crawler};
 use crate::imt::direntryutil::is_hidden;
 use crate::imt::filer::Filer;
+
+const HASH_NAME: &str = "MD5";
 
 #[derive(StructOpt, Debug)]
 pub struct FindDups {
@@ -15,7 +17,7 @@ pub struct FindDups {
 }
 
 struct FindDupsHelper {
-    filer: Option<Filer>,
+    filer: Filer,
 }
 
 #[derive(Debug, Default)]
@@ -30,22 +32,27 @@ impl CrawlHelper for FindDupsHelper {
     }
 
     fn should_process_file(&self, e: &DirEntry, _it: &mut Self::InfoType) -> Result<bool> {
-        //self.filer.contains_hash(e.path(), )
-        unimplemented!()
+        // TODO: add is_image()
+        Ok(!self.filer.contains_hash(e.path(), HASH_NAME))
     }
 
     fn process_file(&self, e: &DirEntry, _it: &mut Self::InfoType) -> Result<()> {
-        unimplemented!()
+        self.filer.add_file(e.path())?;
+        self.filer.add_hash(e.path(), "foo", "bar")?;
+        Ok(())
     }
 }
 
-pub fn process_finddups(fd: &FindDups, filer: Option<Filer>) -> Result<()> {
+pub fn process_finddups(fd: &FindDups, filer: Filer) -> Result<()> {
     for dir in &fd.directories {
         let crawler = Crawler::new(
             dir,
-            FindDupsHelper { filer: filer.clone() },
+            FindDupsHelper {
+                filer: filer.clone(),
+            },
         );
         crawler.crawl()?;
     }
+    filer.write_output("foobar")?;
     Ok(())
 }
