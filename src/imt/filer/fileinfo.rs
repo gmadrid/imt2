@@ -71,24 +71,3 @@ impl FileInfo {
         Ok(())
     }
 }
-
-////fn _exercise_serialization() {
-////    let mut files = Files::default();
-////
-////    let mut fi = FileInfo::new("first/bar/baz");
-////    fi.add_hash("foo", "foovalueofthehash");
-////    fi.add_hash("bar", "barvalueofthehash");
-////    files.add_file(fi);
-////
-////    let mut fi = FileInfo::new("second/quux.jpg");
-////    fi.add_hash("quux", "quuxvalueofhash");
-////    fi.add_hash("quip", "quipvalueofhash");
-////    files.add_file(fi);
-////
-////    let s = toml::to_string(&files).unwrap();
-////    println!("THETOML: {}", s);
-////
-////    let newfiles = toml::from_str::<Files>(&s).unwrap();
-////    println!("RECON: {:?}", newfiles);
-////}
-////
