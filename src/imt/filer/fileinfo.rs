@@ -6,6 +6,7 @@ use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io::Write;
+use crate::imt::image_type::ImageType;
 
 #[derive(Default, Debug, Deserialize, Serialize)]
 pub struct Files {
@@ -13,9 +14,16 @@ pub struct Files {
 }
 
 impl Files {
-    pub fn add_file<P: Into<PathBuf>>(&mut self, path: P) -> Result<()> {
+    pub fn image_type<P: Into<PathBuf>>(&self, path: P) -> Option<ImageType> {
+        self.files.get(&path.into()).map_or(None, |fi| fi.image_type)
+    }
+
+    pub fn set_image_type<P: Into<PathBuf>>(&mut self, path: P, image_type: ImageType) {
+        self.files.entry(path.into()).or_insert_with(FileInfo::new).image_type = Some(image_type);
+    }
+
+    pub fn add_file<P: Into<PathBuf>>(&mut self, path: P)  {
         self.files.entry(path.into()).or_insert_with(FileInfo::new);
-        Ok(())
     }
 
     pub fn contains_hash<P: Into<PathBuf>, S: Into<String>>(&self, path: P, hash_name: S) -> bool {
@@ -29,7 +37,7 @@ impl Files {
         path: P,
         hash_name: S,
         hash_value: V,
-    ) -> Result<()> {
+    ) {
         let entry = self.files.entry(path.into());
 
         match entry {
@@ -52,22 +60,22 @@ impl Files {
 #[derive(Deserialize, Serialize, Debug)]
 pub struct FileInfo {
     hashes: HashMap<String, String>,
+    image_type: Option<ImageType>,
 }
 
 impl FileInfo {
     pub fn new() -> FileInfo {
         FileInfo {
             hashes: HashMap::new(),
+            image_type: Option::default(),
         }
     }
 
-    pub fn add_hash<S: Into<String>>(&mut self, hash_name: S, hash_value: S) -> Result<()> {
+    pub fn add_hash<S: Into<String>>(&mut self, hash_name: S, hash_value: S) {
         let name = hash_name.into();
-        let value = hash_value.into();
         if self.hashes.contains_key(&name) {
             panic!("fileinfo already contains hash for {}", name);
         }
-        self.hashes.insert(name, value);
-        Ok(())
+        self.hashes.insert(name, hash_value.into());
     }
 }

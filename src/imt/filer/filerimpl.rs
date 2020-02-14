@@ -5,6 +5,7 @@ use anyhow::Result;
 use parking_lot::RwLock;
 
 use crate::imt::filer::fileinfo::Files;
+use crate::imt::image_type::ImageType;
 
 #[derive(Clone)]
 pub struct Filer {
@@ -17,7 +18,15 @@ impl Filer {
         Ok(Filer { files })
     }
 
-    pub fn add_file<P: Into<PathBuf>>(&self, path: P) -> Result<()> {
+    pub fn set_image_type<P: Into<PathBuf>>(&mut self, path: P, image_type: ImageType)  {
+        self.files.write().set_image_type(path, image_type)
+    }
+
+    pub fn image_type<P: Into<PathBuf>>(&self, path: P) -> Option<ImageType> {
+        self.files.read().image_type(path)
+    }
+
+    pub fn add_file<P: Into<PathBuf>>(&self, path: P)  {
         self.files.write().add_file(path)
     }
 
@@ -26,7 +35,7 @@ impl Filer {
         path: P,
         hash_name: S,
         hash_value: V,
-    ) -> Result<()> {
+    ) {
         self.files.write().add_hash(path, hash_name, hash_value)
     }
 

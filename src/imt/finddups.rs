@@ -37,8 +37,8 @@ impl CrawlHelper for FindDupsHelper {
     }
 
     fn process_file(&self, e: &DirEntry, _it: &mut Self::InfoType) -> Result<()> {
-        self.filer.add_file(e.path())?;
-        self.filer.add_hash(e.path(), "foo", "bar")?;
+        self.filer.add_file(e.path());
+        self.filer.add_hash(e.path(), "foo", "bar");
         Ok(())
     }
 }

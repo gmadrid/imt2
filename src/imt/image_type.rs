@@ -3,8 +3,9 @@ use std::io::{Read, Seek, SeekFrom};
 use std::path::Path;
 
 use anyhow::Result;
+use serde::{Deserialize, Serialize};
 
-#[derive(Copy, Clone, PartialOrd, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialOrd, PartialEq, Serialize, Deserialize)]
 pub enum ImageType {
     JPEG,
     GIF,

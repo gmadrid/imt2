@@ -72,7 +72,7 @@ impl<'a> CrawlHelper for Helper<'a> {
     }
 
     fn process_file(&self, e: &DirEntry, it: &mut Self::InfoType) -> Result<()> {
-        self.filer.add_file(e.path())?;
+        self.filer.add_file(e.path());
 
         let image_type = it.image_type(e)?;
 
