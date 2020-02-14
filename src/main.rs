@@ -52,7 +52,7 @@ fn main() -> anyhow::Result<()> {
 
     let filer = start_filer()?;
 
-    process_command(opts.command, Some(filer))?;
+    process_command(opts.command, filer)?;
 
     Ok(())
 }
