@@ -43,7 +43,7 @@ impl CrawlHelper for FindDupsHelper {
     }
 }
 
-pub fn process_finddups(fd: &FindDups, filer: Filer) -> Result<()> {
+pub fn process_finddups(fd: &FindDups, filer: &Filer) -> Result<()> {
     for dir in &fd.directories {
         let crawler = Crawler::new(
             dir,

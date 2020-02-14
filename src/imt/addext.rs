@@ -189,13 +189,13 @@ impl<'a> CrawlHelper for Helper<'a> {
     }
 }
 
-pub fn process_addext(ae: &AddExt, filer: Filer) -> Result<()> {
+pub fn process_addext(ae: &AddExt, filer: &Filer) -> Result<()> {
     for dir in &ae.directories {
         let crawler = Crawler::new(
             dir,
             Helper {
                 dry_run: ae.dry_run,
-                filer: &filer,
+                filer: filer,
             },
         );
         crawler.crawl()?;
