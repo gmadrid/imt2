@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::io::{Seek, SeekFrom, Read};
+use std::io::{Read, Seek, SeekFrom};
 use std::path::Path;
 
 use anyhow::Result;
@@ -84,5 +84,3 @@ fn is_gif(buf: &BufType) -> Result<bool> {
         (buf[4..6] == [0x37, 0x61] || // '7a'
             buf[4..6] == [0x39, 0x6a])) // '9a'
 }
-
-

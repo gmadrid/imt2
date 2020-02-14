@@ -5,9 +5,9 @@ use log::{info, warn};
 use structopt::StructOpt;
 use walkdir::DirEntry;
 
-use crate::imt::crawler::{CrawlHelper, Crawler};
-use crate::imt::direntryutil::is_hidden;
-use crate::imt::filer::Filer;
+use super::crawler::{CrawlHelper, Crawler};
+use super::direntryutil::is_hidden;
+use super::filer::Filer;
 use super::image_type::ImageType;
 
 /// Add extensions to image files with no extensions.
@@ -42,9 +42,7 @@ impl Info {
         match self.image_type {
             Some(it) => Ok(it),
             None => {
-                let it =                ImageType::type_of_file_at(e.path())?;
-                //let mut file = File::open(e.path())?;
-                //let it = self.image_type_from_file(&mut file)?;
+                let it = ImageType::type_of_file_at(e.path())?;
                 self.image_type = Some(it);
                 Ok(it)
             }
@@ -106,7 +104,7 @@ pub fn process_addext(ae: &AddExt, filer: &Filer) -> Result<()> {
             dir,
             Helper {
                 dry_run: ae.dry_run,
-                filer: filer,
+                filer,
             },
         );
         crawler.crawl()?;
