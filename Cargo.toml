@@ -10,9 +10,11 @@ name = "imt"
 
 [dependencies]
 anyhow = "1.0"
+hex = "0.4"
 log = "0.4"
 parking_lot = "0.10"
 serde = { version = "1.0", features = ["derive"] }
+sha2 = "0.8"
 simplelog = "0.7"
 structopt = "0.3"
 test-case = "1.0"
