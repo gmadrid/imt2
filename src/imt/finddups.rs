@@ -57,8 +57,7 @@ impl CrawlHelper for FindDupsHelper {
             }
             hasher.input(&buffer[0..n]);
         }
-        let result = hasher.result();
-        let result_str = hex::encode(result);
+        let result_str = hex::encode(hasher.result());
 
         self.filer.add_hash(e.path(), HASH_NAME, result_str);
         Ok(())
