@@ -18,7 +18,7 @@ impl Filer {
         Ok(Filer { files })
     }
 
-    pub fn set_image_type<P: Into<PathBuf>>(&mut self, path: P, image_type: ImageType)  {
+    pub fn set_image_type<P: Into<PathBuf>>(&mut self, path: P, image_type: ImageType) {
         self.files.write().set_image_type(path, image_type)
     }
 
@@ -26,11 +26,14 @@ impl Filer {
         self.files.read().image_type(path)
     }
 
-    pub fn add_file<P: Into<PathBuf>>(&self, path: P)  {
+    pub fn add_file<P: Into<PathBuf>>(&self, path: P) {
         self.files.write().add_file(path)
     }
 
-    pub fn with_files<F>(&self, mut f: F) where F: FnMut(&PathBuf) {
+    pub fn with_files<F>(&self, mut f: F)
+    where
+        F: FnMut(&PathBuf),
+    {
         self.files.read().file_iter().for_each(|path| {
             f(path);
         })
@@ -49,8 +52,15 @@ impl Filer {
         self.files.write().contains_hash(path, hash_name)
     }
 
-    pub fn hash_value<P: Into<PathBuf>, S: Into<String>>(&self, path: P, hash_name: S) -> Option<String> {
-        self.files.read().hash_value(path, hash_name).map(|v| v.to_owned() )
+    pub fn hash_value<P: Into<PathBuf>, S: Into<String>>(
+        &self,
+        path: P,
+        hash_name: S,
+    ) -> Option<String> {
+        self.files
+            .read()
+            .hash_value(path, hash_name)
+            .map(|v| v.to_owned())
     }
 
     pub fn write_to_path<P: AsRef<Path>>(&self, path: P) -> Result<()> {

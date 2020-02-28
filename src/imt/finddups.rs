@@ -1,9 +1,9 @@
 use std::fs::File;
-use std::io::{Read};
+use std::io::Read;
 use std::path::PathBuf;
 
 use anyhow::Result;
-use sha2::{Sha256, Digest};
+use sha2::{Digest, Sha256};
 use structopt::StructOpt;
 use walkdir::DirEntry;
 

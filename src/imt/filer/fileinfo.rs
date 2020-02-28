@@ -2,11 +2,11 @@ use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
+use crate::imt::image_type::ImageType;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io::Write;
-use crate::imt::image_type::ImageType;
 
 #[derive(Default, Debug, Deserialize, Serialize)]
 pub struct Files {
@@ -14,19 +14,22 @@ pub struct Files {
 }
 
 impl Files {
-    pub fn file_iter(&self) -> impl Iterator<Item=&PathBuf> {
+    pub fn file_iter(&self) -> impl Iterator<Item = &PathBuf> {
         self.files.keys()
     }
 
     pub fn image_type<P: Into<PathBuf>>(&self, path: P) -> Option<ImageType> {
-        self.files.get(&path.into()).and_then( |fi| fi.image_type)
+        self.files.get(&path.into()).and_then(|fi| fi.image_type)
     }
 
     pub fn set_image_type<P: Into<PathBuf>>(&mut self, path: P, image_type: ImageType) {
-        self.files.entry(path.into()).or_insert_with(FileInfo::new).image_type = Some(image_type);
+        self.files
+            .entry(path.into())
+            .or_insert_with(FileInfo::new)
+            .image_type = Some(image_type);
     }
 
-    pub fn add_file<P: Into<PathBuf>>(&mut self, path: P)  {
+    pub fn add_file<P: Into<PathBuf>>(&mut self, path: P) {
         self.files.entry(path.into()).or_insert_with(FileInfo::new);
     }
 
@@ -36,7 +39,11 @@ impl Files {
             .map_or(false, |fi| fi.hashes.contains_key(&hash_name.into()))
     }
 
-    pub fn hash_value<P: Into<PathBuf>, S: Into<String>>(&self, path: P, hash_name: S) -> Option<&String> {
+    pub fn hash_value<P: Into<PathBuf>, S: Into<String>>(
+        &self,
+        path: P,
+        hash_name: S,
+    ) -> Option<&String> {
         self.files
             .get(&path.into())
             .and_then(|fi| fi.hashes.get(&hash_name.into()))
