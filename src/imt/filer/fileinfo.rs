@@ -19,7 +19,7 @@ impl Files {
     }
 
     pub fn image_type<P: Into<PathBuf>>(&self, path: P) -> Option<ImageType> {
-        self.files.get(&path.into()).map_or(None, |fi| fi.image_type)
+        self.files.get(&path.into()).and_then( |fi| fi.image_type)
     }
 
     pub fn set_image_type<P: Into<PathBuf>>(&mut self, path: P, image_type: ImageType) {
@@ -39,7 +39,7 @@ impl Files {
     pub fn hash_value<P: Into<PathBuf>, S: Into<String>>(&self, path: P, hash_name: S) -> Option<&String> {
         self.files
             .get(&path.into())
-            .map_or(None, |fi| fi.hashes.get(&hash_name.into()))
+            .and_then(|fi| fi.hashes.get(&hash_name.into()))
     }
 
     pub fn add_hash<P: Into<PathBuf>, S: Into<String>, V: Into<String>>(

@@ -84,7 +84,7 @@ fn look_for_dups(filer: &Filer) -> Result<Vec<Vec<PathBuf>>> {
     Ok(dups)
 }
 
-fn report_dups(dups: &Vec<Vec<PathBuf>>) -> Result<()> {
+fn report_dups(dups: &[Vec<PathBuf>]) -> Result<()> {
     eprintln!("SHOO: {:?}", dups);
     Ok(())
 }
