@@ -14,6 +14,10 @@ pub struct Files {
 }
 
 impl Files {
+    pub fn file_iter(&self) -> impl Iterator<Item=&PathBuf> {
+        self.files.keys()
+    }
+
     pub fn image_type<P: Into<PathBuf>>(&self, path: P) -> Option<ImageType> {
         self.files.get(&path.into()).map_or(None, |fi| fi.image_type)
     }
@@ -32,6 +36,12 @@ impl Files {
             .map_or(false, |fi| fi.hashes.contains_key(&hash_name.into()))
     }
 
+    pub fn hash_value<P: Into<PathBuf>, S: Into<String>>(&self, path: P, hash_name: S) -> Option<&String> {
+        self.files
+            .get(&path.into())
+            .map_or(None, |fi| fi.hashes.get(&hash_name.into()))
+    }
+
     pub fn add_hash<P: Into<PathBuf>, S: Into<String>, V: Into<String>>(
         &mut self,
         path: P,
@@ -48,7 +58,7 @@ impl Files {
         }
     }
 
-    pub fn write<P: AsRef<Path>>(&self, path: P) -> Result<()> {
+    pub fn write_to_path<P: AsRef<Path>>(&self, path: P) -> Result<()> {
         let s = toml::to_string(&self.files)?;
         let mut file = File::create(path)?;
         file.write_all(s.as_bytes())?;

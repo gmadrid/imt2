@@ -30,6 +30,12 @@ impl Filer {
         self.files.write().add_file(path)
     }
 
+    pub fn with_files<F>(&self, mut f: F) where F: FnMut(&PathBuf) {
+        self.files.read().file_iter().for_each(|path| {
+            f(path);
+        })
+    }
+
     pub fn add_hash<P: Into<PathBuf>, S: Into<String>, V: Into<String>>(
         &self,
         path: P,
@@ -43,7 +49,11 @@ impl Filer {
         self.files.write().contains_hash(path, hash_name)
     }
 
-    pub fn write_output<P: AsRef<Path>>(&self, path: P) -> Result<()> {
-        self.files.write().write(path)
+    pub fn hash_value<P: Into<PathBuf>, S: Into<String>>(&self, path: P, hash_name: S) -> Option<String> {
+        self.files.read().hash_value(path, hash_name).map(|v| v.to_owned() )
+    }
+
+    pub fn write_to_path<P: AsRef<Path>>(&self, path: P) -> Result<()> {
+        self.files.write().write_to_path(path)
     }
 }

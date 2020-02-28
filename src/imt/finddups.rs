@@ -1,5 +1,6 @@
 use std::fs::File;
-use std::io::Read;
+use std::io::{Read};
+use std::path::PathBuf;
 
 use anyhow::Result;
 use sha2::{Sha256, Digest};
@@ -9,6 +10,7 @@ use walkdir::DirEntry;
 use crate::imt::crawler::{CrawlHelper, Crawler};
 use crate::imt::direntryutil::is_hidden;
 use crate::imt::filer::Filer;
+use std::collections::HashMap;
 
 const HASH_NAME: &str = "SHA256";
 
@@ -64,6 +66,29 @@ impl CrawlHelper for FindDupsHelper {
     }
 }
 
+fn look_for_dups(filer: &Filer) -> Result<Vec<Vec<PathBuf>>> {
+    let mut hash_to_paths: HashMap<String, Vec<PathBuf>> = HashMap::default();
+    filer.with_files(|p| {
+        // TODO: some sort of progress meter.
+        if let Some(sha) = filer.hash_value(p, HASH_NAME) {
+            hash_to_paths.entry(sha).or_default().push(p.clone());
+        }
+    });
+    let mut dups: Vec<Vec<PathBuf>> = Vec::default();
+    hash_to_paths.values().for_each(|v| {
+        if v.len() > 1 {
+            dups.push(v.clone());
+            eprintln!("{:?}", v);
+        }
+    });
+    Ok(dups)
+}
+
+fn report_dups(dups: &Vec<Vec<PathBuf>>) -> Result<()> {
+    eprintln!("SHOO: {:?}", dups);
+    Ok(())
+}
+
 pub fn process_finddups(fd: &FindDups, filer: &Filer) -> Result<()> {
     for dir in &fd.directories {
         let crawler = Crawler::new(
@@ -74,6 +99,11 @@ pub fn process_finddups(fd: &FindDups, filer: &Filer) -> Result<()> {
         );
         crawler.crawl()?;
     }
-    filer.write_output("foobar")?;
+
+    let dups = look_for_dups(filer)?;
+    report_dups(&dups)?;
+
+    // TODO: have an arg for this destination file.
+    filer.write_to_path("imtfiles.toml")?;
     Ok(())
 }

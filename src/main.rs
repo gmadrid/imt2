@@ -53,7 +53,7 @@ fn main() -> anyhow::Result<()> {
     let filer = start_filer()?;
 
     process_command(opts.command, &filer)?;
-    filer.write_output("files.toml")?;
+    filer.write_to_path("files.toml")?;
 
     Ok(())
 }
