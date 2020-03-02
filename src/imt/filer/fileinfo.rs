@@ -52,18 +52,75 @@ impl FileInfo {
         self.hashes.contains_key(hash_name.as_ref())
     }
 
-    pub fn hash_value<H>(&self, hash_name: H) -> Option<String> where H: AsRef<String> {
+    pub fn hash_value<H>(&self, hash_name: H) -> Option<String>
+    where
+        H: AsRef<str>,
+    {
         self.hashes.get(hash_name.as_ref()).cloned()
     }
 }
 
 #[cfg(test)]
 mod test {
-    use std::time::Instant;
+    use crate::imt::filer::fileinfo::FileInfo;
+    use crate::imt::image_type::ImageType;
+    use std::ops::Sub;
+    use std::time::{Duration, Instant, SystemTime};
 
     #[test]
-    fn test_something() {
-        assert!(false)
+    fn test_mod_time() {
+        let mut fi = FileInfo::default();
+
+        let now = SystemTime::now();
+        let yesterday = now.sub(Duration::new(60 * 60 * 24, 0));
+
+        assert_eq!(None, fi.mod_time());
+
+        fi.set_mod_time(yesterday);
+        assert_eq!(yesterday, fi.mod_time().unwrap());
+
+        fi.set_image_type(ImageType::PNG);
+        fi.add_hash("FAKE", "HASH");
+
+        assert_eq!(ImageType::PNG, fi.image_type().unwrap());
+        assert!(fi.contains_hash("FAKE"));
+
+        fi.set_mod_time(now);
+        assert_eq!(now, fi.mod_time().unwrap());
+
+        assert_eq!(None, fi.image_type());
+        assert!(!fi.contains_hash("FAKE"));
+    }
+
+    #[test]
+    fn test_image_type() {
+        let mut fi = FileInfo::default();
+        assert_eq!(None, fi.image_type());
+
+        fi.set_image_type(ImageType::JPEG);
+        assert_eq!(ImageType::JPEG, fi.image_type().unwrap());
+
+        fi.set_image_type(ImageType::GIF);
+        assert_eq!(ImageType::GIF, fi.image_type().unwrap());
+    }
+
+    #[test]
+    fn test_hashes() {
+        let mut fi = FileInfo::default();
+
+        assert!(!fi.contains_hash("FAKE"));
+        assert!(!fi.contains_hash("MISSING"));
+
+        assert_eq!(None, fi.hash_value("FAKE"));
+        assert_eq!(None, fi.hash_value("MISSING"));
+
+        fi.add_hash("FAKE", "VALUE");
+
+        assert!(fi.contains_hash("FAKE"));
+        assert!(!fi.contains_hash("MISSING"));
+
+        assert_eq!("VALUE", fi.hash_value("FAKE").unwrap());
+        assert_eq!(None, fi.hash_value("MISSING"));
     }
 }
 
