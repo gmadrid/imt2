@@ -6,6 +6,7 @@ mod base;
 mod fileinfo;
 mod filerimpl;
 mod hm_impl;
+mod shared;
 
 pub trait FilerTrait {
     fn add_file<P: Into<PathBuf>>(&mut self, path: P);
@@ -26,8 +27,6 @@ pub trait FilerTrait {
         hash_name: S,
         value: H,
     );
-
-    fn with_files<F: FnMut(&PathBuf)>(&self, f: F);
 }
 
 //pub use filerimpl::Filer;

@@ -22,6 +22,12 @@ pub struct Base {
     files: FilesType,
 }
 
+impl Base {
+    fn files_iter(&self) -> impl Iterator<Item = &PathBuf> {
+        self.files.keys()
+    }
+}
+
 impl FilerTrait for Base {
     fn add_file<P: Into<PathBuf>>(&mut self, path: P) {
         self.files.entry(path.into()).or_default();
@@ -80,10 +86,6 @@ impl FilerTrait for Base {
             .entry(path.into())
             .or_default()
             .add_hash(hash_name.as_ref(), value.as_ref());
-    }
-
-    fn with_files<F: FnMut(&PathBuf)>(&self, f: F) {
-        unimplemented!()
     }
 }
 
@@ -239,5 +241,21 @@ mod test {
         assert_eq!(None, base.hash_for_name(&name, "FAKE"));
 
         assert!(!base.file_known(&name));
+    }
+
+    #[test]
+    fn test_iterator() {
+        let mut base = Base::default();
+        let name1 = PathBuf::from("/foo/bar1");
+        let name2 = PathBuf::from("/foo/bar2");
+        let name3 = PathBuf::from("/foo/bar3");
+
+        base.add_file(&name1);
+        base.add_file(&name2);
+        base.add_file(&name3);
+
+        let mut foo = base.files_iter().cloned().collect::<Vec<_>>();
+        foo.sort();
+        assert_eq!(vec! { name1, name2, name3 }, foo);
     }
 }
