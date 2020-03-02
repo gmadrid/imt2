@@ -1,5 +1,7 @@
+/*
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
+use std::time::{Duration, SystemTime};
 
 use anyhow::Result;
 use parking_lot::RwLock;
@@ -7,17 +9,48 @@ use parking_lot::RwLock;
 use crate::imt::filer::fileinfo::Files;
 use crate::imt::image_type::ImageType;
 
+struct PeriodicFiler {}
+
+impl PeriodicFiler {
+    fn new<P: AsRef<Path>>(p: P, period: Duration) -> Self {
+        unimplemented!()
+    }
+
+    fn save() -> Result<()> {
+        unimplemented!()
+    }
+
+    fn stop() -> Result<()> {
+        unimplemented!()
+    }
+
+    fn stop_and_save() -> Result<()> {
+        unimplemented!()
+    }
+}
+
+// NEEDS
+// - background saving
+// - mutation aware to avoid saving unchanged data
+// - iterate over all files
+// - save multiple named hashes for each file
+// - record mod time of file
+//   - erase saved hashes and other data when mod time changes.
+// - save image type
 #[derive(Clone)]
 pub struct Filer {
     files: Arc<RwLock<Files>>,
 }
 
-impl Filer {
-    pub fn new() -> Result<Filer> {
-        let files = Arc::new(RwLock::new(Files::default()));
-        Ok(Filer { files })
+impl Default for Filer {
+    fn default() -> Self {
+        Filer {
+            files: Arc::new(RwLock::new(Files::default())),
+        }
     }
+}
 
+impl Filer {
     pub fn set_image_type<P: Into<PathBuf>>(&mut self, path: P, image_type: ImageType) {
         self.files.write().set_image_type(path, image_type)
     }
@@ -67,3 +100,4 @@ impl Filer {
         self.files.write().write_to_path(path)
     }
 }
+*/

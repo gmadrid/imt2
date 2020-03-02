@@ -1,8 +1,9 @@
+/*
 use anyhow::Result;
 use structopt::StructOpt;
 
 use crate::imt::addext::{process_addext, AddExt};
-use crate::imt::filer::Filer;
+//use crate::imt::filer::Filer;
 use crate::imt::finddups::{process_finddups, FindDups};
 use crate::imt::findneardups::{process_findneardups, FindNearDups};
 
@@ -21,3 +22,4 @@ pub fn process_command(command: Command, filer: &Filer) -> Result<()> {
         Command::FindNearDups(fnd) => process_findneardups(&fnd),
     }
 }
+*/

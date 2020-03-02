@@ -1,3 +1,4 @@
+/*
 use anyhow::Result;
 use imt::{process_command, Command, Filer};
 use log::LevelFilter;
@@ -45,8 +46,9 @@ fn set_up_logs(opts: &Opts) -> Result<()> {
 fn start_filer() -> Result<Filer> {
     Filer::new()
 }
-
+*/
 fn main() -> anyhow::Result<()> {
+/*
     let opts = Opts::from_args();
     set_up_logs(&opts)?;
 
@@ -54,6 +56,8 @@ fn main() -> anyhow::Result<()> {
 
     process_command(opts.command, &filer)?;
     filer.write_to_path("files.toml")?;
+*/
 
     Ok(())
 }
+

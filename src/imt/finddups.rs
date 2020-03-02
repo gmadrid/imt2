@@ -1,3 +1,4 @@
+/*
 use std::fs::File;
 use std::io::Read;
 use std::path::PathBuf;
@@ -9,7 +10,7 @@ use walkdir::DirEntry;
 
 use crate::imt::crawler::{CrawlHelper, Crawler};
 use crate::imt::direntryutil::is_hidden;
-use crate::imt::filer::Filer;
+//use crate::imt::filer::Filer;
 use std::collections::HashMap;
 
 const HASH_NAME: &str = "SHA256";
@@ -107,3 +108,4 @@ pub fn process_finddups(fd: &FindDups, filer: &Filer) -> Result<()> {
     filer.write_to_path("imtfiles.toml")?;
     Ok(())
 }
+*/

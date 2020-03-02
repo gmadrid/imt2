@@ -1,3 +1,4 @@
+/*
 use std::path::Path;
 
 use anyhow::Result;
@@ -7,7 +8,7 @@ use walkdir::DirEntry;
 
 use super::crawler::{CrawlHelper, Crawler};
 use super::direntryutil::is_hidden;
-use super::filer::Filer;
+//use super::filer::Filer;
 use super::image_type::ImageType;
 
 /// Add extensions to image files with no extensions.
@@ -111,3 +112,4 @@ pub fn process_addext(ae: &AddExt, filer: &Filer) -> Result<()> {
     }
     Ok(())
 }
+*/
