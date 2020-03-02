@@ -62,7 +62,7 @@ impl FileInfo {
 
 #[cfg(test)]
 mod test {
-    use crate::imt::filer::fileinfo::FileInfo;
+    use super::*;
     use crate::imt::image_type::ImageType;
     use std::ops::Sub;
     use std::time::{Duration, Instant, SystemTime};
