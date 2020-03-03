@@ -6,8 +6,6 @@ use crate::imt::filer::FilerTrait;
 //use crate::imt::finddups::{process_finddups, FindDups};
 //use crate::imt::findneardups::{process_findneardups, FindNearDups};
 
-pub struct Filer();
-
 #[derive(StructOpt, Debug)]
 #[structopt(name = "imt2", about = "image tools")]
 pub enum Command {

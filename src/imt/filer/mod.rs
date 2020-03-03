@@ -4,7 +4,6 @@ use std::time::SystemTime;
 
 mod base;
 mod fileinfo;
-mod filerimpl;
 mod shared;
 
 // NEEDS

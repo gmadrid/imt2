@@ -29,7 +29,7 @@ impl<F: FilerTrait> SharedFiler<F> {
     fn new(base: F) -> SharedFiler<F> {
         SharedFiler {
             data: Arc::new(RwLock::new(Data {
-                base: base,
+                base,
                 modified: false,
             })),
         }
@@ -37,10 +37,6 @@ impl<F: FilerTrait> SharedFiler<F> {
 
     fn mod_flag(&self) -> bool {
         self.data.read().modified
-    }
-
-    fn set_mod_flag(&mut self, val: bool) {
-        self.data.write().modified = val;
     }
 }
 
