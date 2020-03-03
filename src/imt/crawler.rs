@@ -29,7 +29,7 @@ pub trait CrawlHelper {
     fn should_process_file(&self, _e: &DirEntry, _it: &mut Self::InfoType) -> Result<bool> {
         Ok(true)
     }
-    fn process_file(&self, e: &DirEntry, it: &mut Self::InfoType) -> Result<()>;
+    fn process_file(&mut self, e: &DirEntry, it: &mut Self::InfoType) -> Result<()>;
 }
 
 struct EntryInfo<T>
@@ -63,7 +63,7 @@ where
         }
     }
 
-    pub fn crawl(&self) -> Result<()> {
+    pub fn crawl(&mut self) -> Result<()> {
         // This is basically a for loop, but we have to expand it out
         // and write it ourselves so that we can call it.skip_current_dir().
         // We cannot use filter_entry() directly since we want to create
@@ -137,7 +137,7 @@ where
         self.helper.should_process_file(&ei.entry, &mut ei.info)
     }
 
-    fn process_entry(&self, ei: &mut EntryInfo<H::InfoType>) -> Result<()> {
+    fn process_entry(&mut self, ei: &mut EntryInfo<H::InfoType>) -> Result<()> {
         if ei.entry.path().is_dir() {
             self.process_dir(&ei.entry)
         } else {
@@ -149,7 +149,7 @@ where
         self.helper.process_directory(e)
     }
 
-    fn process_file(&self, ei: &mut EntryInfo<H::InfoType>) -> Result<()> {
+    fn process_file(&mut self, ei: &mut EntryInfo<H::InfoType>) -> Result<()> {
         self.helper.process_file(&ei.entry, &mut ei.info)
     }
 }

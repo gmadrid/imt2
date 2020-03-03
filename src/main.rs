@@ -50,9 +50,9 @@ fn main() -> anyhow::Result<()> {
     let opts = Opts::from_args();
     set_up_logs(&opts)?;
 
-    let filer = start_filer()?;
+    let mut filer = start_filer()?;
 
-    process_command(opts.command, &filer)?;
+    process_command(opts.command, &mut filer)?;
     /*
         filer.write_to_path("files.toml")?;
     */

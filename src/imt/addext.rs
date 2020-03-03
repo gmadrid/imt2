@@ -1,4 +1,3 @@
-/*
 use std::path::Path;
 
 use anyhow::Result;
@@ -7,8 +6,8 @@ use structopt::StructOpt;
 use walkdir::DirEntry;
 
 use super::crawler::{CrawlHelper, Crawler};
-use super::direntryutil::is_hidden;
-//use super::filer::Filer;
+use super::direntryutil::is_hidden;//
+use super::filer::FilerTrait;
 use super::image_type::ImageType;
 
 /// Add extensions to image files with no extensions.
@@ -28,9 +27,9 @@ fn has_extension(path: &Path) -> bool {
     path.extension().map(|e| !e.is_empty()).unwrap_or(false)
 }
 
-struct Helper<'a> {
+struct Helper<'a, F: FilerTrait> {
     dry_run: bool,
-    filer: &'a Filer,
+    filer: &'a mut F,
 }
 
 #[derive(Default)]
@@ -51,7 +50,7 @@ impl Info {
     }
 }
 
-impl<'a> CrawlHelper for Helper<'a> {
+impl<'a, F: FilerTrait> CrawlHelper for Helper<'a, F> {
     type InfoType = Info;
 
     fn should_descend(&self, e: &DirEntry) -> Result<bool> {
@@ -72,7 +71,7 @@ impl<'a> CrawlHelper for Helper<'a> {
         }
     }
 
-    fn process_file(&self, e: &DirEntry, it: &mut Self::InfoType) -> Result<()> {
+    fn process_file(&mut self, e: &DirEntry, it: &mut Self::InfoType) -> Result<()> {
         self.filer.add_file(e.path());
 
         let image_type = it.image_type(e)?;
@@ -99,9 +98,9 @@ impl<'a> CrawlHelper for Helper<'a> {
     }
 }
 
-pub fn process_addext(ae: &AddExt, filer: &Filer) -> Result<()> {
+pub fn process_addext<F: FilerTrait>(ae: &AddExt, filer: &mut F) -> Result<()> {
     for dir in &ae.directories {
-        let crawler = Crawler::new(
+        let mut crawler = Crawler::new(
             dir,
             Helper {
                 dry_run: ae.dry_run,
@@ -112,4 +111,3 @@ pub fn process_addext(ae: &AddExt, filer: &Filer) -> Result<()> {
     }
     Ok(())
 }
-*/
