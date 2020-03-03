@@ -1,12 +1,20 @@
 use crate::imt::image_type::ImageType;
 use std::path::{Path, PathBuf};
-use std::time::{Duration, SystemTime};
+use std::time::SystemTime;
 
 mod base;
 mod fileinfo;
 mod filerimpl;
-mod hm_impl;
 mod shared;
+
+// NEEDS
+// - background saving
+// - mutation aware to avoid saving unchanged data
+// - iterate over all files
+// - save multiple named hashes for each file
+// - record mod time of file
+//   - erase saved hashes and other data when mod time changes.
+// - save image type
 
 pub trait FilerTrait {
     fn add_file<P: Into<PathBuf>>(&mut self, path: P);
@@ -29,4 +37,4 @@ pub trait FilerTrait {
     );
 }
 
-//pub use filerimpl::Filer;
+pub use shared::BasicSharedFiler;

@@ -7,5 +7,5 @@ mod finddups;
 mod findneardups;
 mod image_type;
 
-//pub use crate::imt::command::{process_command, Command};
-//pub use crate::imt::filer::Filer;
+pub use self::command::{process_command, Command};
+pub use filer::BasicSharedFiler;

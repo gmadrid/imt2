@@ -1,6 +1,5 @@
-/*
 use anyhow::Result;
-use imt::{process_command, Command, Filer};
+use imtlib::{process_command, BasicSharedFiler, Command};
 use log::LevelFilter;
 use simplelog::{CombinedLogger, Config, SharedLogger, TermLogger, TerminalMode, WriteLogger};
 use std::fs::File;
@@ -43,20 +42,19 @@ fn set_up_logs(opts: &Opts) -> Result<()> {
     Ok(())
 }
 
-fn start_filer() -> Result<Filer> {
-    Filer::new()
+fn start_filer() -> Result<BasicSharedFiler> {
+    Ok(BasicSharedFiler::new_basic())
 }
-*/
+
 fn main() -> anyhow::Result<()> {
+    let opts = Opts::from_args();
+    set_up_logs(&opts)?;
+
+    let filer = start_filer()?;
+
+    process_command(opts.command, &filer)?;
     /*
-        let opts = Opts::from_args();
-        set_up_logs(&opts)?;
-
-        let filer = start_filer()?;
-
-        process_command(opts.command, &filer)?;
         filer.write_to_path("files.toml")?;
     */
-
     Ok(())
 }

@@ -1,3 +1,4 @@
 mod imt;
 
-//pub use imt::{process_command, Command/*, Filer*/};
+pub use imt::BasicSharedFiler;
+pub use imt::{process_command, Command /*, Filer*/};

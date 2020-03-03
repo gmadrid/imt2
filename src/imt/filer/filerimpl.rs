@@ -29,14 +29,6 @@ impl PeriodicFiler {
     }
 }
 
-// NEEDS
-// - background saving
-// - mutation aware to avoid saving unchanged data
-// - iterate over all files
-// - save multiple named hashes for each file
-// - record mod time of file
-//   - erase saved hashes and other data when mod time changes.
-// - save image type
 #[derive(Clone)]
 pub struct Filer {
     files: Arc<RwLock<Files>>,
