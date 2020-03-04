@@ -69,7 +69,8 @@ fn is_jpeg(file: &mut File, buf: &BufType) -> Result<bool> {
         return Ok(false);
     }
     let mut tail = [0; 2];
-    read_bytes(file, &mut tail, SeekFrom::End(0))?;
+    let location = SeekFrom::End(-(tail.len() as i64));
+    read_bytes(file, &mut tail, location)?;
     if tail != [0xff, 0xd9] {
         return Ok(false);
     }
